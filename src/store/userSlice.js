@@ -125,6 +125,18 @@ export const fetchUser = createAsyncThunk(
   }
 );
 
+export const deleteNote = createAsyncThunk(
+  "user/deleteNote",
+  async ({ notesId, notesIndex }, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(`http://localhost:4000/notes/${notesId}/${notesIndex}`);
+      return { ...response.data, deletedIndex: notesIndex };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Unexpected error occurred");
+    }
+  }
+);
+
 export const fetchRatedPuzzles = createAsyncThunk(
   "puzzles/fetchRatedPuzzles",
   async (_, { rejectWithValue }) => {
@@ -395,6 +407,9 @@ const userSlice = createSlice({
       })
       .addCase(fetchMessagesList.fulfilled, (state, action)=>{
         state.messagesList = action.payload
+      })
+      .addCase(deleteNote.fulfilled, (state, action) => {
+        state.notes = state.notes.filter((_, index) => index !== action.payload.deletedIndex);
       })
   },
 });

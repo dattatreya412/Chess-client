@@ -11,8 +11,7 @@ const Watch = () => {
 
   useEffect(()=>{
     dispatch(fetchLiveGames())
-    console.log(liveGames)
-  },[dispatch])
+  },[dispatch]) 
   return (
     <section>
       <h1>Watch</h1>

@@ -1,27 +1,30 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addNote, fetchNotes } from "../../store/userSlice";
+import { addNote, fetchNotes, deleteNote } from "../../store/userSlice";
+import NotesList from "./NotesList";
 
 const Notes = () => {
   const [note, setNote] = useState("");
-  const [noteArrays, setNotesArray] = useState([])
   const dispatch = useDispatch();
-
   const theme = useSelector((state) => state.theme.value);
   const color = theme === "dark" ? "bg-black" : "bg-white";
-  // console.log("is note rendering");
   const notesId = useSelector((state) => state.user.playerNotes);
   const notes = useSelector((state) => state.user.notes);
   const status = useSelector((state) => state.user.status);
-  // console.log("in notes")
   const handleNote = () => {
     if (note.trim()) {
-      dispatch(addNote({ notesId, note }));
+      dispatch(addNote({ notesId, note })).then(() => {
+        dispatch(fetchNotes(notesId));
+      });
       setNote("");
     }
   };
-
-  function onKeyDown(event){
+  function handleDeleteNote(index){
+    dispatch(deleteNote({ notesId, notesIndex: index })).then(() => {
+      dispatch(fetchNotes(notesId));
+    });
+  }
+    function onKeyDown(event){
     if(event.key === 'Enter'){
       handleNote()
     }
@@ -31,8 +34,8 @@ const Notes = () => {
     if (notesId) {
       dispatch(fetchNotes(notesId));
     }
-  }, [dispatch]);
-
+  }, [dispatch, notesId]);
+ 
   return (
     <div className={`text-white bg-opacity-50 p-5 w-full my-16 ${color}`}>
       <h1 className="text-xl">Notes</h1>
@@ -41,7 +44,7 @@ const Notes = () => {
         <input
           type="text"
           value={note}
-          className="bg-black bg-opacity-50 w-11/12 border-none outline-none"
+          className="bg-black bg-opacity-50 w-11/12 border-none outline-none p-2"
           placeholder="Write a note..."
           onKeyDown={onKeyDown}
           onChange={(event) => setNote(event.target.value)}
@@ -56,17 +59,7 @@ const Notes = () => {
       </div>
       {status === "loading" && <p>Loading...</p>}
       {status === "succeeded" && (
-        <ul className="max-h-fit">
-          {notes &&
-            [...notes].reverse().map((element, index) => (
-              <li
-                key={index}
-                className="h-fit min-h-16 bg-black bg-opacity-50 my-5"
-              >
-                <p className="p-5">{element}</p>
-              </li>
-            ))}
-        </ul>
+        <NotesList notes={notes} handleDeleteNote={handleDeleteNote} />
       )}
       {status === "failed" && <p>Error loading notes</p>}
     </div>
