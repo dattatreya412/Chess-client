@@ -11,8 +11,8 @@ const initialState = {
   country: "",
   bio: "", 
   isLive: false,
-  isPlaying : false,
-  token: "",
+  isPlaying : false, 
+  token: "", 
   isAuthenticated: false,
   playedGames: [],
   playerMessages: [],
@@ -25,7 +25,11 @@ const initialState = {
   userNames : [],
   userNamesForMessages : [],
   messagesList : [],
-  liveGames : []
+  liveGames : [],
+  news: null,
+  latestNews: [],
+  boardTheme: 'default',
+  iconTheme: 'default'
 };
 //code here
 export const findUserNames= createAsyncThunk(
@@ -42,8 +46,6 @@ export const findUserNames= createAsyncThunk(
     }
   }
 )
-
-
 
 export const findUserNamesForMessages= createAsyncThunk(
   "user/findUsernameForMessages",
@@ -91,6 +93,7 @@ export const fetchLiveGames = createAsyncThunk(
   async(_,{rejectWithValue})=>{
     try{
       const response = await axios.get('http://localhost:4000/watch')
+      console.log(response.data)
       return response.data.liveGames
     }catch(err){
       rejectWithValue(err.response.data)
@@ -209,6 +212,31 @@ export const sendMessage = createAsyncThunk(
   }
 )
 
+export const fetchNews = createAsyncThunk(
+  "news/fetchNews",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get("http://localhost:4000/news/api/highlights");
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || "An error occurred while fetching news");
+    }
+  }
+);
+
+export const fetchLatestNews = createAsyncThunk(
+  "news/fetchLatestNews",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get("http://localhost:4000/news/api/news");
+      console.log(response.data);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || "An error occurred while fetching news");
+    }
+  }
+);
+
 export const updateUser = createAsyncThunk(
   "user/updateUser", 
   async (userData, { rejectWithValue }) => {
@@ -217,6 +245,30 @@ export const updateUser = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const updateChessboardTheme = createAsyncThunk(
+  "user/updateChessboardTheme",
+  async ({theme, userId}, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`http://localhost:4000/user/${userId}/boardTheme`, { boardTheme: theme });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to update chessboard theme");
+    }
+  }
+);
+
+export const updateIconTheme = createAsyncThunk(
+  "user/updateIconTheme",
+  async ({icon, userId}, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`http://localhost:4000/user/${userId}/iconTheme`, { iconTheme: icon });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to update icon theme");
     }
   }
 );
@@ -240,6 +292,8 @@ const userSlice = createSlice({
         playedGames,
         playerMessages,
         playerNotes,
+        boardTheme,
+        iconTheme,
         // playerFriends,
       } = action.payload;
       state._id = _id
@@ -254,6 +308,8 @@ const userSlice = createSlice({
       state.playedGames = playedGames;
       state.playerMessages = playerMessages;
       state.playerNotes = playerNotes; // playerNotes as a string
+      state.boardTheme = boardTheme;
+      state.iconTheme = iconTheme;
       // state.playerFriends = playerFriends;
     },
     setAuth(state, action) {
@@ -309,6 +365,8 @@ const userSlice = createSlice({
           playedGames,
           playerMessages,
           playerNotes,
+          boardTheme,
+          iconTheme,
           // playerFriends,
         } = action.payload;
         state._id = _id
@@ -323,6 +381,8 @@ const userSlice = createSlice({
         state.playedGames = playedGames;
         state.playerMessages = playerMessages;
         state.playerNotes = playerNotes; // playerNotes as a string
+        state.boardTheme = boardTheme;
+        state.iconTheme = iconTheme;
         // state.playerFriends = playerFriends;
       })
       .addCase(fetchUser.rejected, (state, action) => {
@@ -347,6 +407,8 @@ const userSlice = createSlice({
           playedGames,
           playerMessages,
           playerNotes,
+          boardTheme,
+          iconTheme,
           // playerFriends,
         } = action.payload;
         state._id = _id
@@ -361,6 +423,8 @@ const userSlice = createSlice({
         state.playedGames = playedGames;
         state.playerMessages = playerMessages;
         state.playerNotes = playerNotes; // playerNotes as a string
+        state.boardTheme = boardTheme;
+        state.iconTheme = iconTheme;
         // state.playerFriends = playerFriends;
       })
       .addCase(updateUser.rejected, (state, action) => {
@@ -411,6 +475,18 @@ const userSlice = createSlice({
       .addCase(deleteNote.fulfilled, (state, action) => {
         state.notes = state.notes.filter((_, index) => index !== action.payload.deletedIndex);
       })
+      .addCase(fetchLatestNews.fulfilled, (state, action) => {
+        state.latestNews = action.payload;
+      })
+      .addCase(fetchNews.fulfilled, (state, action) => {
+        state.news = action.payload;
+      })
+      .addCase(updateChessboardTheme.fulfilled, (state, action) => {
+        state.boardTheme = action.payload.boardTheme;
+      })
+      .addCase(updateIconTheme.fulfilled, (state, action) => {
+        state.iconTheme = action.payload.iconTheme;
+      });
   },
 });
 

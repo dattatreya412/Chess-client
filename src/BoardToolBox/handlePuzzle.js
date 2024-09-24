@@ -1,4 +1,14 @@
-export const handleMove = (
+import moveSound from "../assets/audio/move-self.mp3"
+
+function playMoveSound() {
+  return new Promise((resolve) => {
+    const audio = new Audio(moveSound);
+    audio.play();
+    audio.onended = resolve;
+  });
+}
+
+export const handleMove = async (
   game,
   move,
   validMoves,
@@ -8,6 +18,7 @@ export const handleMove = (
   next,
   rating
 ) => {
+  await playMoveSound();
     const index = presentMoveCount;
     console.log(JSON.stringify(validMoves))
     console.log(index)
@@ -24,10 +35,13 @@ export const handleMove = (
         console.log("valid")
         setPresentMoveCount((prevCount) => prevCount + 1);
         if (index + 1 < validMoves.length) {
+          setTimeout(async ()=>{
+            await playMoveSound();
           const autoMove = validMoves[index + 1];
           game.move(autoMove);
           setBoardFen(game.fen());
           setPresentMoveCount((prevCount) => prevCount + 1);
+          },500)
         } else {
           console.log("correct")
           setTimeout(()=>{

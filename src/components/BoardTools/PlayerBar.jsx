@@ -5,16 +5,19 @@ const PlayerBar = ({
   playerName,
   displayTimer = false,
   timer = "",
+  className = "",
 }) => {
   return (
-    <div className="flex flex-row justify-between items-center h-10 w-full bg-black bg-opacity-50 rounded-sm my-1 pr-4 text-white">
-      <div className="flex items-center h-full">
-        <img className="h-10 px-4 py-2" src={playerLogo} />
-        <p>{playerName}</p>
+    <div className={`flex justify-between items-center h-14 w-full bg-gray-800 bg-opacity-80 rounded-lg shadow-md px-4 text-white ${className}`}>
+      <div className="flex items-center space-x-3">
+        <img className="h-10 w-10 rounded-full object-cover" src={playerLogo} alt={`${playerName}'s logo`} />
+        <p className="font-semibold text-lg">{playerName}</p>
       </div>
-      <div>
-        <p>{timer}</p>
-      </div>
+      {displayTimer && (
+        <div className="bg-gray-700 px-3 py-1 rounded-md">
+          <p className="font-mono text-lg">{timer}</p>
+        </div>
+      )}
     </div>
   );
 };

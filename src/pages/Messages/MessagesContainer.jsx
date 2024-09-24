@@ -1,15 +1,58 @@
-import React from 'react'
-import SendMessage from './SendMessage'
+import React, { useEffect, useRef } from "react";
+import SendMessage from "./SendMessage";
+import { useSelector } from "react-redux";
 
-const MessagesContainer = () => {
+const MessagesContainer = ({ displayMessagesList, messages }) => {
+  const userName = useSelector((state) => state.user.username);
+  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  console.log(userName)
+  console.log(JSON.stringify(messages))
   return (
-    <section className='relative w-full h-[86vh] bg-black bg-opacity-40'> 
-    <div className='absolute flex items-end h-full w-full'>
-    <SendMessage/>
-    </div>
-        
+    <section className="relative mt-1 w-full h-[78vh] bg-black bg-opacity-40 flex flex-col rounded-lg shadow-lg p-4">
+      {displayMessagesList && (
+        <div 
+          ref={messagesContainerRef}
+          className="flex-grow overflow-y-auto"
+        >
+          <ul className="space-y-4 p-4 h-[44vh] overflow-y-auto">
+            {messages.map((item) => {
+              const alignmentClass = item.sentBy === userName ? "ml-auto" : "mr-auto";
+              const bubbleColorClass = item.sentBy === userName ? "bg-green-500" : "bg-gray-700";
+              return (
+                <li 
+                  key={item._id} 
+                  className={`flex ${item.sentBy === userName ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`${bubbleColorClass} p-3 rounded-lg max-w-xs lg:max-w-md shadow-md`}>
+                    <p className="text-white break-words">{item.message}</p>
+                  </div>
+                </li>
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </ul>
+        </div>
+      )}
+      <div className="mt-auto">
+        {displayMessagesList ?
+          <SendMessage defaultUsername={messages[0].sentBy}/> :
+          <SendMessage />
+        }
+      </div>
     </section>
-)
-}
+  );
+};
 
-export default MessagesContainer
+export default MessagesContainer;

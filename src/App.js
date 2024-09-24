@@ -12,7 +12,7 @@ import Play from "./pages/Play";
 import Puzzles from "./pages/Puzzles";
 import NewGame from "./pages/NewGame";
 import { Live } from "./pages/Live";
-import VsComputer from "./pages/VsComputer";
+import OtherProfile from "./pages/OtherProfile";
 import Learn from "./pages/Learn";
 import Watch from "./pages/Watch";
 import News from "./pages/News";
@@ -22,6 +22,13 @@ import Help from "./pages/Help";
 import Messages from "./pages/Messages";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import GameAnalysis from "./pages/GameAnalysis";
+import GeneratePuzzle from "./components/GeneratePuzzle";
+import GenerateLesson from "./components/GenerateLesson";
+import LessonDisplayBoard from "./components/Learn/LessonDisplayBoard";
+import Profile from "./pages/Profile";
+import ArchiveBoard from "./components/BoardTools/ArchiveBoard";
+import Archive from "./components/Archive";
 
 import Protected from "./components/Authentication/Protected";
 
@@ -31,6 +38,7 @@ import PuzzleRush from "./pages/puzzles/PuzzleRush";
 import RatedPuzzles from "./pages/puzzles/RatedPuzzles";
 import TimeRush from "./pages/puzzles/TimeRush";
 import PuzzleBattle from "./pages/puzzles/PuzzleBattle";
+import ComputerMenu from "./components/Computer/ComputerMenu";
 
 import UploadFile from "./UploadFile";
 
@@ -48,8 +56,36 @@ const myRouter = createBrowserRouter([
         ),
       },
       {
+        path : "profile/:username",
+        element:<Profile/>
+      },
+      {
+        path : "other-profile/:username",
+        element:<OtherProfile/>
+      },
+      {
+        path: ":username/archive",
+        element: <Archive />,
+      },
+      {
+        path: "archive/:gameId",
+        element: <ArchiveBoard />,
+      },
+      {
+        path : "generate-puzzle",
+        element:<GeneratePuzzle/>
+      },
+      {
+        path : "generate-lesson",
+        element:<GenerateLesson/>
+      },
+      {
         path : "upload-news",
         element:<UploadFile/>
+      },
+      {
+        path: "game-analysis",
+        element: <GameAnalysis />,
       },
       {
         path: ":username/play",
@@ -73,7 +109,7 @@ const myRouter = createBrowserRouter([
               },
               {
                 path: "vscomputer",
-                element: <VsComputer />,
+                element: <ComputerMenu />,
               },
             ],
           },
@@ -81,31 +117,31 @@ const myRouter = createBrowserRouter([
       },
       {
         path: ":username/puzzles",
-        element: <Outlet />,
+        element: <Protected><Outlet /></Protected>,
         children: [
           {
             index: true,
             element: <Puzzles />,
           },
           {
-            path: "custom-puzzles",
-            element: <CustomPuzzles />,
-          },
-          {
-            path: "daily-puzzle",
-            element: <DailyPuzzle />,
-          },
-          {
-            path: "puzzle-battle",
-            element: <PuzzleBattle />,
+            path: "rated-puzzles",
+            element: <RatedPuzzles />,
           },
           {
             path: "puzzle-rush",
             element: <PuzzleRush />,
           },
           {
-            path: "rated-puzzles",
-            element: <RatedPuzzles />,
+            path: "puzzle-battle",
+            element: <PuzzleBattle />,
+          },
+          {
+            path: "daily-puzzle",
+            element: <DailyPuzzle />,
+          },
+          {
+            path: "custom-puzzles",
+            element: <CustomPuzzles />,
           },
           {
             path: "time-rush",
@@ -115,7 +151,17 @@ const myRouter = createBrowserRouter([
       },
       {
         path: ":username/learn",
-        element: <Learn />,
+        element: <Protected><Outlet /></Protected>,
+        children: [
+          {
+            index: true,
+            element: <Learn />,
+          },
+          {
+            path: ":lessonId",
+            element: <LessonDisplayBoard />,
+          },
+        ],
       },
       {
         path: ":username/news",

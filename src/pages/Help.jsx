@@ -4,7 +4,7 @@ import ReportBugs from '../components/Help/ReportBugs'
 
 const Help = () => {
   return (
-    <section>
+    <section className='bg-black bg-opacity-50 h-[93vh]'>
       <HelpHeader/>
       <ReportBugs/>
     </section>

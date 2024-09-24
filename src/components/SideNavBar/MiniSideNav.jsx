@@ -12,13 +12,18 @@ const MiniSideNav = ({
     <Link
       to={navigate}
       id="miniSideNav"
-      className="flex gap-2 items-center w-full my-3 hover:bg-black hover:bg-opacity-80"
+      className="flex items-center w-full py-1.5 px-2 my-1 rounded-md transition-all duration-200 ease-in-out hover:bg-gray-800 hover:shadow-sm"
     >
-      <div className="w-7">
-        <img src={img} alt={`${title} + logo`} />
+      <div className="w-6 h-6 mr-1.5 flex-shrink-0">
+        <img src={img} alt={`${title} icon`} className="w-full h-full object-contain" />
       </div>
-      {!isTiteleDisabled &&
-        (title ? <p className="font-semibold ">{title}</p> : children)}
+      {!isTiteleDisabled && (
+        title ? (
+          <p className="font-semibold text-white truncate">{title}</p>
+        ) : (
+          <div className="text-white">{children}</div>
+        )
+      )}
     </Link>
   );
 };

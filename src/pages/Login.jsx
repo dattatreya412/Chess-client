@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [user, setUser] = useState({
     username: "",
     password: "",
   });
+  const navigate = useNavigate();
 
   async function handleLogin(event) {
     event.preventDefault();
@@ -36,28 +38,54 @@ const Login = () => {
   }
 
   return (
-    <section className="w-screen h-screen">
-      <form onSubmit={handleLogin}>
-        <input
-          type="text"
-          name="username"
-          placeholder="User Name"
-          onChange={handleChange}
-          onKeyDown = {onkeydown}
-          value={user.username}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          onKeyDown = {onkeydown}
-          value={user.password}
-          required
-        />
-        <button type="submit">Login</button>
-      </form>
+    <section className="w-screen h-screen flex items-center justify-center ">
+      <div className="bg-gray-700 bg-opacity-50 shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md">
+        <form onSubmit={handleLogin} className="mb-4">
+          <div className="mb-4">
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-200 bg-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+              type="text"
+              name="username"
+              placeholder="User Name"
+              onChange={handleChange}
+              onKeyDown={onKeyDown}
+              value={user.username}
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-200 bg-gray-600 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              type="password"
+              name="password"
+              placeholder="Password"
+              onChange={handleChange}
+              onKeyDown={onKeyDown}
+              value={user.password}
+              required
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="submit"
+            >
+              Login
+            </button>
+          </div>
+        </form>
+        <div className="text-center">
+          <p className="text-sm text-gray-400">
+            Don't have an account?{" "}
+            <button
+              onClick={() => navigate("/register")}
+              className="font-medium text-blue-500 hover:text-blue-400 focus:outline-none focus:underline transition ease-in-out duration-150"
+            >
+              Register
+            </button>
+          </p>
+        </div>
+      </div>
     </section>
   );
 };

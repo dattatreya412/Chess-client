@@ -12,21 +12,21 @@ const PlayContainer = () => {
   const userName = useSelector((state) => state.user.username);
   const preferdTime = useSelector((state) => state.userPrefarence.time);
   return (
-    <section id="playContainer" className="h-1/2 w-64 p-4 rounded-lg">
+    <section id="playContainer" className="h-1/2 w-64 p-4 rounded-lg bg-transparent transition-all duration-300 ease-in-out hover:scale-105">
       <div className="flex flex-col justify-evenly gap-1 h-full">
         <BoardHeader title={"Play"} img={computer}>
-          <h2 className="text-2xl font-bold mb-4">95</h2>
+          <h2 className="text-2xl font-bold mb-4 text-white">95</h2>
         </BoardHeader>
-        <Link to={`/${userName}/play/game/live`}>
+        <Link to={`/${userName}/play/game/live`} className="transition-transform duration-200 ease-in-out hover:scale-105">
           <MiniContainer img={play} title={`Play ${preferdTime} min`} />
         </Link>
-        <Link to={`/${userName}/play/game`}>
+        <Link to={`/${userName}/play/game`} className="transition-transform duration-200 ease-in-out hover:scale-105">
           <MiniContainer img={newGame} title={"New Game"} />
         </Link>
-        <Link to={`/${userName}/play/game/vscomputer`}>
+        <Link to={`/${userName}/play/game/vscomputer`} className="transition-transform duration-200 ease-in-out hover:scale-105">
           <MiniContainer img={computer} title={"vs Computer"} />
         </Link>
-        <Link to={`/${userName}/social`}>
+        <Link to={`/${userName}/social`} className="transition-transform duration-200 ease-in-out hover:scale-105">
           <MiniContainer img={friend} title={"Play a Friend"} />
         </Link>
       </div>

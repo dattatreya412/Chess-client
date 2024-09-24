@@ -3,73 +3,68 @@ import PuzzleBoardSolver from "../../components/puzzles/puzzleBoardSolver";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchRatedPuzzles } from "../../store/userSlice";
 
-const RatedPuzzles = () => {
-  const [countPuzzles, setCountPuzzles] = useState(-1);
-  const [puzzle, setPuzzle] = useState(null);
+const CustomPuzzles = () => {
+  const [puzzleIndex, setPuzzleIndex] = useState(0);
+  const [currentPuzzle, setCurrentPuzzle] = useState(null);
   const dispatch = useDispatch();
 
   // Get puzzles data from the Redux store
   const puzzles = useSelector((state) => state.user.puzzles);
-  // console.log(puzzles)
 
-  // Fetch puzzles when component mounts
+  // Fetch rated puzzles when component mounts
   useEffect(() => {
-    if (puzzles.length === 0) {
+    if (!puzzles || puzzles.length === 0) {
       dispatch(fetchRatedPuzzles());
     }
-  }, [dispatch]);
+  }, [dispatch, puzzles]);
 
+  // Update current puzzle when puzzles data or index changes
+  useEffect(() => {
+    if (puzzles && puzzles.puzzles && puzzles.puzzles[0]?.puzzles) {
+      const allPuzzles = puzzles.puzzles[0].puzzles;
+      if (puzzleIndex < allPuzzles.length) {
+        setCurrentPuzzle(allPuzzles[puzzleIndex]);
+      }
+    }
+  }, [puzzles, puzzleIndex]);
 
-
-
-  function next(status, rating){
-    console.log("in next")
-    setCountPuzzles(pre => pre + 1)
-    console.log("index :"  + countPuzzles)
-    if (puzzles.puzzles) {
-      if(countPuzzles > puzzles.puzzles[0].puzzles.length - 1) return 
-      // console.log(puzzles.puzzles[0].puzzles)
-      setPuzzle(puzzles.puzzles[0].puzzles[countPuzzles]);
-    // let rating = puzzles.puzzles[0].puzzles[countPuzzles].rating
+  function next(status) {
+    console.log(`Puzzle ${puzzleIndex + 1} completed with status: ${status}`);
+    setPuzzleIndex((prevIndex) => {
+      const nextIndex = prevIndex + 1;
+      if (puzzles && puzzles.puzzles && puzzles.puzzles[0]?.puzzles) {
+        const allPuzzles = puzzles.puzzles[0].puzzles;
+        if (nextIndex >= allPuzzles.length) {
+          console.log("All puzzles completed!");
+          return prevIndex; // Stay on the last puzzle
+        }
+      }
+      return nextIndex;
+    });
   }
-    // setPuzzle(puzzles.puzzles[0])
-  } 
-  useEffect(()=>{
-    next('init',0)
-    setCountPuzzles(-1)
-  },[])
-  
-  useEffect(()=>{
-    next('init')
-  },[puzzles])
-    console.log(puzzle)
+
+  if (!puzzles || puzzles.length === 0) {
+    return <div>Loading puzzles...</div>;
+  }
+
+  if (!currentPuzzle) {
+    return <div>No more puzzles available.</div>;
+  }
+
   return (
     <div className="w-96">
-      {/* Render the puzzle solver only if a puzzle is available */}
-      {puzzle && (
-        <PuzzleBoardSolver
-          rating={puzzle.rating}
-          fen={puzzle.gameboardPosition}
-          correctMoves={puzzle.correctMoves}
-          setCountPuzzles={setCountPuzzles}
-          next = {next}
-        />
-      )}
+      <PuzzleBoardSolver
+        rating={currentPuzzle.rating}
+        fen={currentPuzzle.gameboardPosition}
+        correctMoves={currentPuzzle.correctMoves}
+        next={next}
+      />
+      <div>Puzzle {puzzleIndex + 1} of {puzzles.puzzles[0]?.puzzles.length || 0}</div>
     </div>
   );
 };
 
-export default RatedPuzzles;
-
-
-
-
-
-
-
-
-
-
+export default CustomPuzzles;
 
 
 

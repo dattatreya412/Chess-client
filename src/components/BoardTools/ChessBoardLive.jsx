@@ -8,6 +8,10 @@ import MessagesInGame from "./MessagesInGame";
 import formatSeconds from "../../BoardToolBox/formatSeonds";
 import onDrop from "../../BoardToolBox/onDrop";
 
+// audio import 
+import notifySound from '../../assets/audio/notify.mp3'
+import peaceMoveSound from '../../assets/audio/move-self.mp3'
+import peaceCaptureSound from '../../assets/audio/capture.mp3'
 
 const Board = ({ time, name, logo, isSpectator=false }) => {
   const [PlayerRole, setPlayerRole] = useState("w");
@@ -22,6 +26,37 @@ const Board = ({ time, name, logo, isSpectator=false }) => {
   const [blackTimer, setBlackTimer] = useState(time);
   const [intervalIdWhite, setIntervalIdWhite] = useState(null);
   const [intervalIdBlack, setIntervalIdBlack] = useState(null);
+  const [selectedSquare, setSelectedSquare] = useState(null);
+
+  const playNotifySound = () => {
+    return new Promise((resolve) => {
+      const audio = new Audio(notifySound);
+      audio.play();
+      audio.onended = resolve;
+    });
+  };
+  const playPeaceMoveSound = () => {
+    return new Promise((resolve) => {
+      const audio = new Audio(peaceMoveSound);
+      audio.play();
+      audio.onended = resolve;
+    });
+  };
+  const playPeaceCaptureSound = () => {
+    return new Promise((resolve) => {
+      const audio = new Audio(peaceCaptureSound);
+      audio.play();
+      audio.onended = resolve;
+    });
+  };
+  useEffect(() => {
+    setWhiteTimer(time);
+    setBlackTimer(time);
+  }, [time]);
+
+  console.log("Time prop:", time);
+  console.log("White timer:", whiteTimer);
+  console.log("Black timer:", blackTimer);
 
   const startWhiteTimer = useCallback(() => {
     if (intervalIdWhite) return; 
@@ -33,7 +68,7 @@ const Board = ({ time, name, logo, isSpectator=false }) => {
         }
         return prevSeconds - 1;
       });
-    }, 1000); // Update every 1 second
+    }, 1000);
     setIntervalIdWhite(id);
   }, [intervalIdWhite]);
 
@@ -45,7 +80,7 @@ const Board = ({ time, name, logo, isSpectator=false }) => {
   }, [intervalIdWhite]);
 
   const startBlackTimer = useCallback(() => {
-    if (intervalIdBlack) return; // Prevent starting multiple intervals
+    if (intervalIdBlack) return;
     const id = setInterval(() => {
       setBlackTimer((prevSeconds) => {
         if (prevSeconds === 1) {
@@ -54,7 +89,7 @@ const Board = ({ time, name, logo, isSpectator=false }) => {
         }
         return prevSeconds - 1;
       });
-    }, 1000); // Update every 1 second
+    }, 1000);
     setIntervalIdBlack(id);
   }, [intervalIdBlack]);
 
@@ -66,9 +101,10 @@ const Board = ({ time, name, logo, isSpectator=false }) => {
   }, [intervalIdBlack]);
 
   useEffect(() => {
-    socket.on("startGame", (roomid) => {
+    socket.on("startGame", async (roomid) => {
       console.log("Game started")
       console.log(roomid)
+      await playNotifySound();
       setIsGameStarted(true);
       setIsPeaeDragable(true && !isSpectator)
       setTimeout(() => {
@@ -83,7 +119,8 @@ const Board = ({ time, name, logo, isSpectator=false }) => {
   }, [startWhiteTimer]);
 
   useEffect(() => {
-    socket.on("gameOver", (winner) => {
+    socket.on("gameOver", async (winner) => {
+      await playNotifySound();
       setIsPeaeDragable(false)
       pauseWhiteTimer();
       pauseBlackTimer();
@@ -95,7 +132,8 @@ const Board = ({ time, name, logo, isSpectator=false }) => {
         setGreetings(`${opponent} won the game.`);
       }
     });
-    socket.on("timeoutPlayer", (looser) => {
+    socket.on("timeoutPlayer", async (looser) => {
+      await playNotifySound();
       let winner = looser === "w" ? "black" : "white";
       setGreetings(`${winner} won the game in time.`);
     });
@@ -104,19 +142,23 @@ const Board = ({ time, name, logo, isSpectator=false }) => {
       setPlayerRole(type);
     });
 
-    // socket.on("spectatorRole", () => {
-    //   setSpectatorMode(true);
-    // });
-
-    socket.on("move", (move) => {
+    socket.on("move", async (move) => {
       setMoves((prevMoves) => [...prevMoves, move]);
+      if (move.captured) {
+        await playPeaceCaptureSound();
+        console.log("Captured piece:", move.captured);
+      } else {
+        await playPeaceMoveSound();
+        console.log("Move piece:", move.san);
+      }
     });
 
     socket.on("boardState", (boardState) => {
       setGamePosition(boardState);
     });
 
-    socket.on("invalidMove", (move) => {
+    socket.on("invalidMove", async (move) => {
+      await playNotifySound();
       setIsInvalidMove(true);
       setInvalidMove(move);
       setTimeout(() => {
@@ -127,7 +169,6 @@ const Board = ({ time, name, logo, isSpectator=false }) => {
     return () => {
       socket.off("gameOver");
       socket.off("playerRole");
-      // socket.off("spectatorRole");
       socket.off("move");
       socket.off("boardState");
       socket.off("invalidMove");
@@ -155,45 +196,73 @@ const Board = ({ time, name, logo, isSpectator=false }) => {
     startBlackTimer,
     startWhiteTimer,
   ]);
+
+  const handleSquareClick = (square) => {
+    if (selectedSquare === null) {
+      setSelectedSquare(square);
+    } else {
+      onDrop(selectedSquare, square);
+      setSelectedSquare(null);
+    }
+  };
+
   return (
     <div
       id="chessBoard"
-      className="flex flex-col justify-evenly lg:flex-row h-[83vh] w-full"
+      className="flex flex-col justify-evenly lg:flex-row h-[83vh] w-full "
     >
-      <div id="board" className=" w-5/12 h-full">
-        <h1>{greeting}</h1>
+      <div id="board" className="sm:w-10/12 w-full h-fit shadow-lg rounded-lg p-4">
+        {greeting && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 w-full h-full flex items-center justify-center">
+            <h1 className="text-2xl font-bold text-center text-white bg-gray-800 bg-opacity-75 px-4 py-2 rounded-lg shadow-lg">
+              {greeting}
+            </h1>
+          </div>
+        )}
 
         {isInvalidMove && (
-          <h1 className="h-2/3 flex justify-center items-center w-1/3 text-black text-2xl absolute z-10">
-            Invalid Move {invalidMove.to}
-          </h1>
+          <div className="absolute top-4 right-4 z-50">
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md shadow-lg animate-slide-in-right">
+              <p className="font-bold">Invalid Move</p>
+              <p>The move to {invalidMove.to} is not allowed.</p>
+            </div>
+          </div>
         )}
         {isGameStarted && (
-          <h1 className="h-2/3 flex justify-center items-center w-1/3 text-black text-2xl absolute z-10">
-            Game Started...!
-          </h1>
+          <div className="absolute top-4 right-4 z-50">
+            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md shadow-lg animate-slide-in-right">
+              <p className="font-bold">Game Started!</p>
+              <p>Good luck and have fun!</p>
+            </div>
+          </div>
         )}
         {!isSpectator && <PlayerBar
-          playerName={"oponent"}
+          playerName={"opponent"}
           playerLogo={logo}
           displayTimer="true"
           timer={formatSeconds(PlayerRole === "b" ? whiteTimer : blackTimer)}
         />}
-        <Chessboard
-          boardOrientation={PlayerRole === "w" ? "white" : "black"}
-          arePiecesDraggable={isPeaceDragable}
-          allowDragOutsideBoard={false}
-          onPieceDrop={onDrop}
-          position={gamePosition}
-        />
-        {!isSpectator &&<PlayerBar
+        <div className="my-2">
+          <Chessboard
+            boardOrientation={PlayerRole === "w" ? "white" : "black"}
+            arePiecesDraggable={isPeaceDragable}
+            allowDragOutsideBoard={false}
+            onPieceDrop={onDrop}
+            onSquareClick={handleSquareClick}
+            position={gamePosition}
+            customSquareStyles={{
+              [selectedSquare]: { backgroundColor: "rgba(255, 255, 0, 0.4)" },
+            }}
+          />
+        </div>
+        {!isSpectator && <PlayerBar
           playerName={name}
           playerLogo={logo}
           displayTimer="true"
           timer={formatSeconds(PlayerRole === "w" ? whiteTimer : blackTimer)}
         />}
       </div>
-      {!isSpectator &&<div className="bg-black bg-opacity-60 h-full w-1/3">
+      {!isSpectator && <div className="sm:w-10/12 w-full h-full shadow-lg rounded-lg p-4 bg-black bg-opacity-60">
         <DisplayMoves moves={moves} />
         <MessagesInGame />
       </div>}
@@ -201,7 +270,4 @@ const Board = ({ time, name, logo, isSpectator=false }) => {
   );
 };
 
-
-
 export default Board;
-

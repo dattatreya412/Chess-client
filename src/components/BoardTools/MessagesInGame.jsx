@@ -1,62 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { socket } from "../../sockets";
-// import Header from "../BoardTools/Header";
-// const MessagesInGame = () => {
-//   const [message, setMessage] = useState("");
-//   const [messages, setMessages] = useState([]);
-//   useEffect(() => {
-//     socket.on("sendMessageToclient", (messageFromServer) => {
-//       console.log("trigerd.")
-//       console.log("message from server : " + messageFromServer)
-//       setMessages((prevMessages) => [...prevMessages, messageFromServer]);
-//       console.log(messages)
-//     });
-
-//     return ()=>{
-//       socket.off("sendMessageToClient")
-//     }
-//   }, []);
-//   function handleMessage() {
-//     socket.emit("sendMessage", message);
-//     setMessage("");
-//   }
-//   return (
-//     <div className="h-40 w-full ">
-//       <Header title="Messages" />
-//       <ul
-//         id="messageBox"
-//         className="h-36 mx-4 text-white overflow-auto scrollbar-custom"
-//       >
-//         {messages.map((mes) => {
-//           return <li>{mes}</li>;
-//         })}
-//       </ul>
-//       <div className="flex justify-between my-3">
-//         <input
-//           className="bg-black bg-opacity-80 w-56 mx-2 px-1 text-white text-sm border-none outline-none"
-//           type="text"
-//           onChange={(event) => {
-//             setMessage(event.target.value);
-//           }}
-//           value={message}
-//         />
-//         <button
-//           onClick={handleMessage}
-//           className="bg-green-500 px-2 mx-2  rounded-md text-sm"
-//         >
-//           send message
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default MessagesInGame;
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { socket } from "../../sockets";
@@ -91,29 +32,30 @@ const MessagesInGame = () => {
   }
 
   return (
-    <div className="h-40 w-full ">
+    <div className="h-60 w-full bg-gray-800 rounded-lg shadow-md mt-2">
       <Header title="Messages" />
       <ul
         id="messageBox"
-        className="h-36 mx-4 text-white overflow-auto scrollbar-custom"
+        className="h-28 mx-4 text-white overflow-auto scrollbar-custom"
       >
         {messages.map((mes, index) => (
-          <li key={index}>{mes}</li>
+          <li key={index} className="mb-1 text-sm">{mes}</li>
         ))}
       </ul>
-      <div className="flex justify-between my-3">
+      <div className="flex justify-between items-center mt-2 px-4">
         <input
-          className="bg-black bg-opacity-80 w-56 mx-2 px-1 text-white text-sm border-none outline-none"
+          className="bg-gray-700 w-3/4 px-3 py-1 text-white text-sm border border-gray-600 rounded-md focus:outline-none focus:border-blue-500 transition duration-300"
           type="text"
+          placeholder="Type your message..."
           onChange={(event) => setMessage(event.target.value)}
           value={message}
           onKeyDown={onKeyDown}
         />
         <button
           onClick={handleMessage}
-          className="bg-green-500 px-2 mx-2 rounded-md text-sm"
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-md text-sm transition duration-300 focus:outline-none focus:ring-2 focus:ring-green-300"
         >
-          Send Message
+          Send
         </button>
       </div>
     </div>

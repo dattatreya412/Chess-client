@@ -1,36 +1,27 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import Header from "../components/News/Header";
 import Headlines from "../components/News/Headlines";
 import NewsContainer from "../components/News/NewsContainer";
+import { fetchNews, fetchLatestNews } from "../store/userSlice"; 
+import logo from '../assets/news-logo.png'
 
 const News = () => {
-  const [highlights, setHighlights] = useState({
-    img: "",
-    description: "",
-  });
-  const [news, setNews] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const news = useSelector((state) => state.user.news);
+  const latestNews = useSelector((state) => state.user.latestNews);
+  // console.log(news)
+  // console.log("latestNews" + JSON.stringify(latestNews))
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const { data } = await axios.get("http://localhost:4000/news");
-        setHighlights(data.highlights);
-        setNews(data.news);
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    fetchData();
-  }, []);
-
+    dispatch(fetchNews());
+    dispatch(fetchLatestNews());
+  }, [dispatch]);
   return (
     <section className="w-full h-full overflow-y-auto hidden-scrollbar">
-      <Header />
-      <Headlines highlights={highlights} />
-      {!loading && <NewsContainer news={news} />}
+      <Header logo={logo} />
+      <Headlines highlights={news} />
+      {latestNews && <NewsContainer latestNews={latestNews} />}
     </section>
   );
 };

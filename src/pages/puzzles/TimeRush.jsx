@@ -3,73 +3,116 @@ import PuzzleBoardSolver from "../../components/puzzles/puzzleBoardSolver";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchRatedPuzzles } from "../../store/userSlice";
 import PuzzleTimer from "../../components/puzzles/PuzzleTimer";
+import PuzzleMeter from "../../components/puzzles/PuzzleMeter";
 
 const TimeRush = () => {
-  const [countPuzzles, setCountPuzzles] = useState(-1);
+  const [puzzleIndex, setPuzzleIndex] = useState(0);
   const [puzzle, setPuzzle] = useState(null);
+  const [puzzleMeter, setPuzzleMeter] = useState([]);
+  const [showInstructions, setShowInstructions] = useState(true);
+  const [gameOver, setGameOver] = useState(false);
+  const [boardEnabled, setBoardEnabled] = useState(false);
+  const [currentTurn, setCurrentTurn] = useState("");
   const dispatch = useDispatch();
-  const [boardEnabled, setBoardEnabled] = useState(false)
-  //lets say
-  const [puzzleRating, setPuzzleRating] = useState(1500)
+
+  // Get puzzles data from the Redux store
   const puzzles = useSelector((state) => state.user.puzzles);
-  const [start, setStart] = useState(false)
-  const [displayScore, setDisplayScore] = useState(false)
-  
 
   useEffect(() => {
     if (puzzles.length === 0) {
       dispatch(fetchRatedPuzzles());
     }
-  }, [dispatch]);
+  }, [dispatch, puzzles.length]);
 
-
-
-  function handleTimer(){
-    setCountPuzzles(0)
-    setBoardEnabled(true)
-    setDisplayScore(false)
-    if(puzzles.puzzles){
-      setBoardEnabled(true)
-      setStart(true)
-      console.log(puzzles.puzzles)
-      next('init', '0') 
+  useEffect(() => {
+    if (puzzles.puzzles && puzzles.puzzles[0]?.puzzles) {
+      const currentPuzzle = puzzles.puzzles[0].puzzles[puzzleIndex];
+      setPuzzle(currentPuzzle);
+      setCurrentTurn(currentPuzzle.turn === "white" ? "White to play" : "Black to play");
     }
-  }
-  const timeout = ()=>{
-    setBoardEnabled(false)
-    setStart(false)
-    setDisplayScore(true)
-    console.log(countPuzzles)
+  }, [puzzles, puzzleIndex]);
+
+  function handleStart() {
+    setShowInstructions(false);
+    setBoardEnabled(true);
+    setPuzzleIndex(0);
+    setPuzzleMeter([]);
   }
 
-  function next(status, rating){
-    let index = countPuzzles + 1
-    setCountPuzzles(index)
-    if (puzzles.puzzles) {
-      console.log("index :"  + index)
-      if(countPuzzles > puzzles.puzzles[0].puzzles.length - 1) return 
-      console.log("index :"  + index)
-      setPuzzle(puzzles.puzzles[0].puzzles[index]);
+  function next(status) {
+    setPuzzleMeter(prevMeter => [...prevMeter, status]);
+    setPuzzleIndex(prev => prev + 1);
   }
-}
-console.log(boardEnabled + " " + puzzles)
+
+  function timeout() {
+    setBoardEnabled(false);
+    setGameOver(true);
+  }
+
+  if (gameOver) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <h2 className="text-2xl font-bold mb-4">Time's Up!</h2>
+          <p className="text-xl">You solved {puzzleIndex} puzzles.</p>
+          <PuzzleMeter puzzleMeter={puzzleMeter} />
+          <button 
+            className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => window.location.reload()}
+          >
+            Play Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-96">
-      {(boardEnabled && puzzle) && (
-        <PuzzleBoardSolver
-          rating={puzzle.rating}
-          fen={puzzle.gameboardPosition}
-          correctMoves={puzzle.correctMoves}
-          setCountPuzzles={setCountPuzzles}
-          next = {next}
-        />
+    <div className="flex justify-center items-start gap-8 p-8 bg-gray-100 min-h-screen">
+      {showInstructions ? (
+        <div className="w-2/3 max-w-2xl bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold mb-4">Time Rush Instructions</h2>
+          <ul className="list-disc pl-5">
+            <li>Solve as many puzzles as you can in 3 minutes</li>
+            <li>Each correct solution adds to your score</li>
+            <li>Try to solve puzzles quickly and accurately</li>
+          </ul>
+          <button 
+            className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={handleStart}
+          >
+            Start Time Rush
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="w-1/2 max-w-2xl bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-2xl font-bold mb-4">Time Rush</h2>
+            {boardEnabled && puzzle && (
+              <>
+                <div className="text-lg font-semibold mb-2">{currentTurn}</div>
+                <PuzzleBoardSolver
+                  rating={puzzle.rating}
+                  fen={puzzle.gameboardPosition}
+                  correctMoves={puzzle.correctMoves}
+                  next={next}
+                  turn={puzzle.turn}
+                />
+              </>
+            )}
+          </div>
+          <div className="w-1/3 max-w-md">
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+              <h2 className="text-2xl font-bold mb-4">Time Rush Stats</h2>
+              <div className="text-lg font-semibold mb-2">Puzzles Solved: {puzzleIndex}</div>
+              <PuzzleTimer timeout={timeout} />
+              <PuzzleMeter puzzleMeter={puzzleMeter} />
+            </div>
+          </div>
+        </>
       )}
-      {!boardEnabled && <button onClick={handleTimer} className="bg-green-500 px-2 py-1">Start</button>}
-      {start && <PuzzleTimer timeout = {timeout} />}
-      {displayScore && <p>{countPuzzles}</p>}
     </div>
   );
 };
 
-
-export default TimeRush 
+export default TimeRush;

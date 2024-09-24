@@ -1,46 +1,53 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'  // For navigation
+import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { FaChessKing, FaChessQueen, FaEye } from 'react-icons/fa'
 
 const MatchDetails = ({ game }) => {
   const [whitePlayerName, setWhitePlayerName] = useState("");
   const [blackPlayerName, setBlackPlayerName] = useState("");
-  const navigate = useNavigate();  // React Router hook for navigations
+  const navigate = useNavigate();
   const username = useSelector(state => state.user.username)
 
   useEffect(() => {
-    async function getWhitePlayerName() {
-      const { data } = await axios.get(`http://localhost:4000/user/getusername/${game.whitePlayerId}`);
-      setWhitePlayerName(data.username);
+    async function fetchPlayerNames() {
+      const [whiteData, blackData] = await Promise.all([
+        axios.get(`http://localhost:4000/user/getusername/${game.whitePlayerId}`),
+        axios.get(`http://localhost:4000/user/getusername/${game.blackPlayerId}`)
+      ]);
+      setWhitePlayerName(whiteData.data.username);
+      setBlackPlayerName(blackData.data.username);
     }
 
-    async function getBlackPlayerName() {
-      const { data } = await axios.get(`http://localhost:4000/user/getusername/${game.blackPlayerId}`);
-      setBlackPlayerName(data.username);
-    }
-
-    getWhitePlayerName();
-    getBlackPlayerName();
+    fetchPlayerNames();
   }, [game.whitePlayerId, game.blackPlayerId]);
 
-
   const joinSpectator = () => {
-    navigate(`/${username}/play/game/live`, { state: { isSpectator: true, id : game.spectatorId } });
+    navigate(`/${username}/play/game/live`, { state: { isSpectator: true, id: game.spectatorId } });
   };
 
   return (
-    <li className='flex flex-row items-center justify-between bg-black bg-opacity-50 text-white h-7 w-64'>
-      <p className='px-1 w-20'>{whitePlayerName}</p>
-      <p className='flex justify-center w-fit'>VS</p>
-      <p className='px-1 w-20 text-right'>{blackPlayerName}</p> 
+    <div className='bg-gray-800 rounded-lg shadow-lg p-4 mb-4 transition-all duration-300 hover:bg-gray-700'>
+      <div className='flex items-center justify-between mb-2'>
+        <div className='flex items-center'>
+          <FaChessKing className='text-white mr-2' />
+          <p className='text-white font-semibold'>{whitePlayerName}</p>
+        </div>
+        <p className='text-gray-400'>VS</p>
+        <div className='flex items-center'>
+          <p className='text-white font-semibold'>{blackPlayerName}</p>
+          <FaChessQueen className='text-black ml-2' />
+        </div>
+      </div>
       <button 
-        className="ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded" 
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300 flex items-center justify-center"
         onClick={joinSpectator}
       >
-        Join as Spectator
+        <FaEye className="mr-2" />
+        Spectate Game
       </button>
-    </li>
+    </div>
   );
 }
 

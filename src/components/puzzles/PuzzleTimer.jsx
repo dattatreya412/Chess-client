@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import formatSeconds from '../../BoardToolBox/formatSeonds'; // Ensure correct import
 
 const PuzzleTimer = ({ timeout }) => {
-  const [timer, setTimer] = useState(10);
+  const [timer, setTimer] = useState(3*60);
 
   useEffect(() => {
     const interval = setInterval(() => {

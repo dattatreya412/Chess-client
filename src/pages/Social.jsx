@@ -1,52 +1,61 @@
-import React, { useEffect, useState } from "react";
-import { Chess } from "chess.js";
-import { Chessboard } from "react-chessboard";
-import { handleMove } from "../BoardToolBox/handlePuzzle"; // Adjust the import path as needed
+import React from 'react'
 
-const ChessBoardComponent = () => {
-  const [game, setGame] = useState(null);
-  const [boardFen, setBoardFen] = useState(null);
-  const [status, setStatus] = useState(true);
-  const [validMoves, setValidMoves] = useState([]);
-  const [presentMoveCount, setPresentMoveCount] = useState(0);
-  const [turn, setTurn] = useState("w");
+const styles = {
+  socialPage: {
+    maxWidth: '800px',
+    margin: '0 auto',
+    padding: '20px',
+    fontFamily: 'Arial, sans-serif',
+  },
+  header: {
+    color: '#333',
+    borderBottom: '2px solid #3498db',
+    paddingBottom: '10px',
+    marginBottom: '20px',
+  },
+  section: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: '8px',
+    padding: '20px',
+    marginBottom: '20px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  },
+  sectionTitle: {
+    color: '#2c3e50',
+    marginTop: '0',
+  },
+  friendsList: {
+    listStyleType: 'none',
+    padding: '0',
+  },
+  friendItem: {
+    padding: '10px 0',
+    borderBottom: '1px solid #eee',
+  },
+  activityFeed: {
+    color: '#555',
+  },
+}
 
-  useEffect(() => {
-    const fen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1";
-    const chessGame = new Chess(fen);
-    setGame(chessGame);
-    setBoardFen(fen);
-    setTurn("b");
-    const movesArray = [
-      // { from: 'a2', to: 'a4' },
-      { from: "a7", to: "a5" },
-      // { from: 'h2', to: 'h4' },
-    ];
-    setValidMoves(movesArray);
-  }, []);
-
+const Social = () => {
   return (
-    <div>
-      <Chessboard
-        position={boardFen}
-        boardOrientation={turn === "b" ? "black" : "white"}
-        onPieceDrop={(sourceSquare, targetSquare) => {
-          if (game) {
-            handleMove(
-              game,
-              { from: sourceSquare, to: targetSquare, promotion: "q" },
-              validMoves,
-              setBoardFen,
-              setPresentMoveCount,
-              setStatus,
-              presentMoveCount
-            );
-          }
-        }}
-      />
-      {!status && <p>Invalid move. Try again!</p>}
+    <div style={styles.socialPage}>
+      <h1 style={styles.header}>Social Hub</h1>
+      <div style={styles.section}>
+        <h2 style={styles.sectionTitle}>Friends</h2>
+        <ul style={styles.friendsList}>
+          <li style={styles.friendItem}>Alice Johnson (Online)</li>
+          <li style={styles.friendItem}>Bob Smith (Offline)</li>
+          <li style={styles.friendItem}>Charlie Brown (Away)</li>
+        </ul>
+      </div>
+      <div style={styles.section}>
+        <h2 style={styles.sectionTitle}>Activity Feed</h2>
+        <p style={styles.activityFeed}>Recent activities from your network will appear here.</p>
+      </div>
     </div>
-  );
-};
+  )
+}
 
-export default ChessBoardComponent;
+export default Social
+

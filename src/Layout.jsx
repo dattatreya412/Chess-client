@@ -90,7 +90,6 @@ function Layout() {
   const user = useSelector((state) => state.user);
   const status = useSelector((state) => state.user.status);
   const error = useSelector((state) => state.user.error);
-  // console.log(JSON.stringify(user));
 
   useEffect(() => {
     const username = localStorage.getItem("Chess:username");

@@ -44,7 +44,7 @@ const Notes = () => {
         <input
           type="text"
           value={note}
-          className="bg-black bg-opacity-50 w-11/12 border-none outline-none p-2"
+          className="bg-black bg-opacity-50 w-11/12 border-none outline-none p-2 rounded-md transition-all duration-300 text-white placeholder-gray-400"
           placeholder="Write a note..."
           onKeyDown={onKeyDown}
           onChange={(event) => setNote(event.target.value)}
@@ -52,7 +52,7 @@ const Notes = () => {
         <button
           onClick={handleNote}
           disabled={note.trim().length === 0}
-          className="bg-green-600 rounded-md p-1 m-1 px-2"
+          className="bg-green-600 rounded-md p-1 m-1 px-2 hover:bg-green-700 transition-colors duration-300"
         >
           Post
         </button>
