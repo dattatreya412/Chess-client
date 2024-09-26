@@ -45,25 +45,28 @@ const ArchiveBoard = () => {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <div style={{ width: '400px', height: '400px' }}>
+    <div className="flex flex-col items-center bg-gray-100 p-8 rounded-lg shadow-lg">
+      <div className="h-[450px] w-[450px] mb-6">
         <Chessboard position={game.fen()} />
       </div>
-      <div className="mt-4 flex justify-center space-x-4">
+      <div className="flex justify-center space-x-6">
         <button
           onClick={moveBackward}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition duration-300 ease-in-out flex items-center shadow-md"
           disabled={currentMoveIndex < 0}
         >
           <FaChevronLeft className="mr-2" /> Back
         </button>
         <button
           onClick={moveForward}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
+          className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full transition duration-300 ease-in-out flex items-center shadow-md"
           disabled={currentMoveIndex >= moves.length - 1}
         >
           Forward <FaChevronRight className="ml-2" />
         </button>
+      </div>
+      <div className="mt-4 text-gray-700 font-semibold">
+        Move: {currentMoveIndex + 1} / {moves.length}
       </div>
     </div>
   );

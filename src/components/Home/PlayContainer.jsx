@@ -12,7 +12,7 @@ const PlayContainer = () => {
   const userName = useSelector((state) => state.user.username);
   const preferdTime = useSelector((state) => state.userPrefarence.time);
   return (
-    <section id="playContainer" className="h-1/2 w-64 p-4 rounded-lg bg-transparent transition-all duration-300 ease-in-out hover:scale-105">
+    <section id="playContainer" className="h-1/2 w-64 p-4 rounded-lg  transition-all duration-300 ease-in-out hover:scale-105 bg-black bg-opacity-30">
       <div className="flex flex-col justify-evenly gap-1 h-full">
         <BoardHeader title={"Play"} img={computer}>
           <h2 className="text-2xl font-bold mb-4 text-white">95</h2>

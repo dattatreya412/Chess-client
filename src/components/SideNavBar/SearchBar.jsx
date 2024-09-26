@@ -4,7 +4,7 @@ import { findUserNames } from '../../store/userSlice'
 import { useDispatch } from 'react-redux'
 
 const SearchBar = () => {
-    const dispatch = useDispatch()
+    const dispatch = useDispatch() 
     function handleSearch(event) {
         const searchText = event.target.value
         console.log("searchText : " + searchText)

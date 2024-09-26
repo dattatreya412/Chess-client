@@ -59,7 +59,7 @@ const myRouter = createBrowserRouter([
         path : "profile/:username",
         element:<Profile/>
       },
-      {
+      { 
         path : "other-profile/:username",
         element:<OtherProfile/>
       },

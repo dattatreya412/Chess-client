@@ -1,7 +1,7 @@
 // export default MessageDetails;
 import React, { useState, useEffect } from 'react';
 
-const MessageDetails = ({ item, displayMessages }) => {
+const MessageDetails = ({ item, displayMessages, setObjectId }) => {
   const [username, setUsername] = useState('');
 
   useEffect(() => {
@@ -23,7 +23,10 @@ const MessageDetails = ({ item, displayMessages }) => {
   return (
     <li 
       key={item._id} 
-      onClick={() => { displayMessages(item); }} 
+      onClick={() => { 
+          displayMessages(item, username);
+          setObjectId(item.userId);
+       }} 
       className="text-white mb-2 p-4 hover:bg-gray-700 cursor-pointer rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105"
     >
       {username || item.userId}

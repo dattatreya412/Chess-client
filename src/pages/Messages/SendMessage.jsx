@@ -1,36 +1,47 @@
 import React, { useEffect, useState } from "react";
-import { findUserNamesForMessages, sendMessage as sendMessageAction, fetchMessagesList } from "../../store/userSlice";
+import { findUserNamesForMessages } from "../../store/userSlice";
 import { useDispatch, useSelector } from "react-redux";
-import axios from 'axios'
+import { socket } from "../../sockets";
 
-const SendMessage = ({defaultUsername = ""}) => {
+const SendMessage = ({ presentConversation, displayMessagesList }) => {
   const [message, setMessage] = useState("");
-  const [sentTo, setSentTo] = useState(defaultUsername);
+  const [sentTo, setSentTo] = useState(presentConversation);
   const sentBy = useSelector((state) => state.user.username);
-  const userId = useSelector((state)=>state.user._id)
   const usernames = useSelector((state) => state.user.userNamesForMessages);
-  const messagesList = useSelector((state)=> state.user.messagesList)
-  console.log(JSON.stringify(messagesList))
   const dispatch = useDispatch();
-  useEffect(()=>{
-    dispatch(fetchMessagesList(userId))
-  },[dispatch])
+
+  useEffect(() => {
+    socket.on("messageReceived", (newMessage) => {
+      console.log("Message sent successfully:", newMessage);
+    });
+
+    socket.on("messageError", (error) => {
+      console.error("Error sending message:", error);
+    });
+
+    return () => {
+      socket.off("messageReceived");
+      socket.off("messageError");
+    };
+  }, []);
 
   function handleSendMessage(event) {
     event.preventDefault();
     if (message.trim()) {
-      dispatch(
-        sendMessageAction({
-          sentBy,
-          sentTo,
-          message,
-        })
-      );
+      socket.emit("sendMessage", {
+        sentBy,
+        sentTo,
+        message,
+      });
       setMessage("");
     } else {
       console.log("Message is not valid");
     }
   }
+
+  useEffect(() => {
+    setSentTo(presentConversation);
+  }, [presentConversation]);
 
   function handleSearch(event) {
     const searchText = event.target.value;
@@ -45,16 +56,18 @@ const SendMessage = ({defaultUsername = ""}) => {
 
   return (
     <section className="absolute bottom-0 left-0 right-0 w-full bg-gray-800 p-4 rounded-t-lg shadow-lg">
-      <div className="flex items-center mb-4">
-        <p className="text-white mr-2">To:</p>
-        <input
-          type="text"
-          placeholder="Search"
-          className="w-full rounded-md border border-gray-600 p-2 outline-none text-black bg-gray-200 focus:ring-2 focus:ring-blue-500"
-          onChange={handleSearch}
-          value={sentTo}
-        />
-      </div>
+      {!displayMessagesList && (
+        <div className="flex items-center mb-4">
+          <p className="text-white mr-2">To:</p>
+          <input
+            type="text"
+            placeholder="Search"
+            className="w-full rounded-md border border-gray-600 p-2 outline-none text-black bg-gray-200 focus:ring-2 focus:ring-blue-500"
+            onChange={handleSearch}
+            value={sentTo}
+          />
+        </div>
+      )}
       {usernames.length > 0 && sentTo && (
         <div className="relative">
           <ul className="absolute z-10 w-full bg-white bg-opacity-90 rounded-md shadow-md max-h-40 overflow-y-auto">

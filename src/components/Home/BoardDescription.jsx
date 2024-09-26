@@ -8,7 +8,7 @@ const BoardDescription = ({ img, title, children, link = "/" }) => {
   return (
     <Link 
       to={link} 
-      className="h-1/2 w-64 text-white p-4 rounded-lg transition-all duration-300 ease-in-out hover:scale-102"
+      className="h-1/2 w-64 mx-2 text-white p-4 rounded-lg transition-all duration-300 ease-in-out hover:scale-110 bg-black bg-opacity-30 "
     >
       <div className="mb-2">{children}</div>
       <div
